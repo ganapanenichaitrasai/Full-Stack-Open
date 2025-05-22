@@ -1,25 +1,31 @@
 import { useState } from "react"
 
+// This is the right place to define a component
+const Button = (props) => (
+  <button onClick={props.onClick}>
+    {props.text}
+  </button>
+)
+
 const App = () => {
   const [value, setValue] = useState(10)
 
-  const setToValue = (newValue) => {
+  const setToValue = newValue => {
     console.log('value now', newValue)
     setValue(newValue)
   }
 
+  // Do not define components inside another component
+
+  const Display = props => <div>{props.value}</div>
+
   return (
     <div>
-      {value}
-      <button onClick={() => setToValue(1000)}>
-        thousand
-      </button>
-      <button onClick={() => setToValue(0)}>
-        reset
-      </button>
-      <button onClick={() => setToValue(value + 1)}>
-        increment
-      </button>
+
+      <Display value={value} />
+      <Button onClick={() => setToValue(1000)} text="thousand" />
+      <Button onClick={() => setToValue(0)} text="reset" />
+      <Button onClick={() => setToValue(value + 1)} text="increment" />
     </div>
   )
 }
