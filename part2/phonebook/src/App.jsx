@@ -3,6 +3,8 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Perosns'
 import { useEffect } from 'react'
+import Notification from './components/Notification'
+import './index.css'
 import axios from 'axios'
 
 const App = () => {
@@ -11,6 +13,7 @@ const App = () => {
   const [newNumber,setNewNumber] = useState('')
   const [search,setSearch] = useState('')
   const [purify,setFilter] = useState(false)
+  const [notification,setNotification] = useState(null)
 
   useEffect(() => {
     axios
@@ -59,6 +62,10 @@ const App = () => {
       .post('http://localhost:3001/persons',objectName)
       .then(response => {
         setPersons(persons.concat(response.data))
+        setNotification(`Added ${newName}`)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
         setNewName('')
         setNewNumber('')
       })
@@ -85,6 +92,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message = {notification} />
       <Filter text = "filter shown with" value = {search} onChange = {handleSearch} />
       <h3>add a new</h3>
       <PersonForm onSubmit = {handleSubmit} value1 = {newName} value2 = {newNumber} onChangeName = {handleNameChange} onChangeNumber = {handleNumberChange} />
