@@ -1,55 +1,65 @@
-const express = require('express')
+const express = require("express")
 const app = express()
+var Data = require("./data.js")
+
+
 
 app.use(express.json())
 
-let notes = [
-  {
-    id: "1",
-    content: "HTML is easy",
-    important: true
-  },
-  {
-    id: "2",
-    content: "Browser can execute only JavaScript",
-    important: false
-  },
-  {
-    id: "3",
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true
-  }
-]
-
-app.get('/', (req, res) => {
-  //console.log(req)
-  res.send('<h1>Hello World!</h1>')
+app.get('/api/persons',(req,res) => {
+  res.json(Data)
 })
 
-app.get('/api/notes',(req,res)=>{
-  res.json(notes)
+app.get('/info',(req,res) => {
+  res.send(
+    `<p>Phonebook has info for ${Data.length} people</p>
+      <p>${new Date()}</p>`)
+  
 })
 
-app.get('/api/notes/:id',(req,res) => {
+app.get('/api/persons/:id',(req,res) => {
   const id = req.params.id
-  const note = notes.find(note => note.id == id)
-  if (note) {
-    res.json(note)
-  } else {
+  person = Data.find(person => person.id == id) 
+  if(person){
+    res.json(person)
+  }
+  else{
     res.status(404).end()
   }
 })
 
-app.delete('/api/notes/:id', (req, res) => {
-  const id = req.params.id
-  notes = notes.filter(note => note.id !== id)
-  res.status(204).end()
+app.delete('/api/persons/:id',(req,res) => {
+  id = req.params.id
+  persons = Data.filter(person => person.id!=id)
+  Data = persons
+  res.json(Data)
 })
 
-app.post('/api/notes', (req, res) => {
-  const note = req.body
-  console.log(note)
-  res.json(note)
+app.post('/api/persons',(req,res) => {
+  const { name, number } = req.body
+  if(!name || !number){
+    res.status(400).json({
+      error: 'name or number missing',
+    })
+  }
+  else{
+    const flag  = Data.find(person => person.name===name)
+    if (!flag){
+      
+      const person = {
+      "id" : String(Math.random(1000)),
+      "name" : name,
+      "number" : number
+    }
+    Data = Data.concat(person)
+    res.json(Data)
+    }
+
+    else {
+      res.status(400).json({error : "name must be unique"})
+   }
+  }
+  
 })
 
 const PORT = 3001
