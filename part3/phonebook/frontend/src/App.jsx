@@ -1,34 +1,104 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
+import { useEffect } from 'react'
+import Notification from './components/Notification'
+import './index.css'
+import axios from 'axios'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [persons, setPersons] = useState([])
+  const [newName, setNewName] = useState('')
+  const [newNumber,setNewNumber] = useState('')
+  const [search,setSearch] = useState('')
+  const [purify,setFilter] = useState(false)
+  const [notification,setNotification] = useState(null)
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/api/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+  },[persons])
+
+  const personsToShow = purify? persons.filter((person)=> person.name.startsWith(search) === true) : persons
+
+  const handleNameChange = (e) => {
+    setNewName(e.target.value)
+  }
+
+  const handleNumberChange = (e) => {
+    // console.log(e.target.value)
+    setNewNumber(e.target.value)
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    var flag = true
+    persons.forEach(person => {
+      if (person.name === newName) {
+        // console.log("match")
+        if(window.confirm(`${newName} is already added to phonebook,replace the old number with new one?`)){
+          const changedPerson = {...person,number:newNumber}
+          axios
+            .put(`http://localhost:3001/api/persons/${person.id}`,changedPerson)
+            .then(response => {
+              setPersons(persons.map(person => person.name === newName? changedPerson : person))
+            })
+            setNewName('')
+            setNewNumber('')
+        }
+        flag = false
+      }
+    })
+    if(flag){
+    const objectName = {
+      name : newName,
+      number : newNumber,
+      id: String(persons.length + 1)
+    }
+    axios
+      .post('http://localhost:3001/api/persons',objectName)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setNotification(`Added ${newName}`)
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
+        setNewName('')
+        setNewNumber('')
+      })
+  }
+  }
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value)
+    setFilter(true)
+  }
+
+  const handleDelete = (name,id) => {
+  if(window.confirm(`Delete ${name}`)){
+    axios
+      .delete(`http://localhost:3001/api/persons/${id}`)
+      .then(response => {
+        console.log(response.data)
+        const updatedPersons = persons.filter(person => person.name != response.data.name)
+        setPersons(updatedPersons)
+      })
+  }
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <h2>Phonebook</h2>
+      <Notification message = {notification} />
+      <Filter text = "filter shown with" value = {search} onChange = {handleSearch} />
+      <h3>add a new</h3>
+      <PersonForm onSubmit = {handleSubmit} value1 = {newName} value2 = {newNumber} onChangeName = {handleNameChange} onChangeNumber = {handleNumberChange} />
+      <h2>Numbers</h2>
+      <Persons personsToShow = {personsToShow} handleDelete = {handleDelete} />
+    </div>
   )
 }
 
