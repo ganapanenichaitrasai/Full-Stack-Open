@@ -7,6 +7,8 @@ import Notification from './components/Notification'
 import './index.css'
 import axios from 'axios'
 
+const url = "/api/persons/"
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
@@ -17,7 +19,7 @@ const App = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:3001/api/persons')
+      .get(`${url}`)
       .then(response => {
         setPersons(response.data)
       })
@@ -42,7 +44,7 @@ const App = () => {
         if(window.confirm(`${newName} is already added to phonebook,replace the old number with new one?`)){
           const changedPerson = {...person,number:newNumber}
           axios
-            .put(`http://localhost:3001/api/persons/${person.id}`,changedPerson)
+            .put(`${url}${person.id}`,changedPerson)
             .then(response => {
               setPersons(persons.map(person => person.name === newName? changedPerson : person))
             })
@@ -59,7 +61,7 @@ const App = () => {
       id: String(persons.length + 1)
     }
     axios
-      .post('http://localhost:3001/api/persons',objectName)
+      .post(`${url}`,objectName)
       .then(response => {
         setPersons(persons.concat(response.data))
         setNotification(`Added ${newName}`)
@@ -80,7 +82,7 @@ const App = () => {
   const handleDelete = (name,id) => {
   if(window.confirm(`Delete ${name}`)){
     axios
-      .delete(`http://localhost:3001/api/persons/${id}`)
+      .delete(`${url}/${id}`)
       .then(response => {
         console.log(response.data)
         const updatedPersons = persons.filter(person => person.name != response.data.name)
