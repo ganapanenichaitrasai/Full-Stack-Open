@@ -4,7 +4,7 @@ const app = express()
 const morgan = require("morgan")
 var Data = require("./data.js")
 
-
+app.use(express.static('dist'))
 app.use(cors())
 app.use(express.json())
 app.use(
