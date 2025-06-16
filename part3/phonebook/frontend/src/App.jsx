@@ -21,7 +21,7 @@ const App = () => {
       .then(response => {
         setPersons(response.data)
       })
-  },[persons])
+  },[])
 
   const personsToShow = purify? persons.filter((person)=> person.name.startsWith(search) === true) : persons
 

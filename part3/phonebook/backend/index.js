@@ -60,7 +60,7 @@ app.post('/api/persons',(req,res) => {
       "number" : number
     }
     Data = Data.concat(person)
-    res.json(Data)
+    res.json(person)
     }
 
     else {
