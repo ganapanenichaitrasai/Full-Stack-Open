@@ -1,8 +1,9 @@
 const express = require("express")
+require("dotenv").config()
 const cors = require("cors")
 const app = express()
 const morgan = require("morgan")
-var Data = require("./data.js")
+const Data = require("./models/persons.js")
 
 app.use(express.static('dist'))
 app.use(cors())
@@ -15,52 +16,62 @@ morgan.token('post', (req) => {
 })
 
 app.get('/api/persons',(req,res) => {
-  res.json(Data)
+  Data.find({}).then(persons => {
+    res.json(persons)
+  })
 })
 
 app.get('/info',(req,res) => {
   res.send(
-    `<p>Phonebook has info for ${Data.length} people</p>
+    `<p>Phonebook has info for ${Data.length + 1} people</p>
       <p>${new Date()}</p>`)
   
 })
 
 app.get('/api/persons/:id',(req,res) => {
-  const id = req.params.id
-  person = Data.find(person => person.id == id) 
-  if(person){
-    res.json(person)
-  }
-  else{
-    res.status(404).end()
-  }
+  Data.findById(req.params.id)
+    .then(note => {
+      if (note) {
+        res.json(note)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      res.status(500).end()
+    })
 })
 
-app.delete('/api/persons/:id',(req,res) => {
-  id = req.params.id
-  persons = Data.filter(person => person.id!=id)
-  Data = persons
-  res.json(Data)
+app.delete('/api/persons/:id', (request, response, next) => {
+  Data.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.post('/api/persons',(req,res) => {
   const { name, number } = req.body
+  var flag;
   if(!name || !number){
     res.status(400).json({
       error: 'name or number missing',
     })
   }
   else{
-    const flag  = Data.find(person => person.name===name)
+    Data.find({name}).then(person => {
+      flag = person.name
+    })
     if (!flag){
       
-      const person = {
-      "id" : String(Math.random(1000)),
+      const person = new Data({
       "name" : name,
       "number" : number
-    }
-    Data = Data.concat(person)
-    res.json(person)
+    })
+    person.save().then(result => {
+      res.json(result)
+    })
     }
 
     else {
@@ -70,7 +81,7 @@ app.post('/api/persons',(req,res) => {
   
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

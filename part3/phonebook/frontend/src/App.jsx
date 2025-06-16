@@ -7,7 +7,7 @@ import Notification from './components/Notification'
 import './index.css'
 import axios from 'axios'
 
-const url = "/api/persons/"
+const url = "http://localhost:3001/api/persons"
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -57,8 +57,7 @@ const App = () => {
     if(flag){
     const objectName = {
       name : newName,
-      number : newNumber,
-      id: String(persons.length + 1)
+      number : newNumber
     }
     axios
       .post(`${url}`,objectName)
@@ -80,13 +79,12 @@ const App = () => {
   }
 
   const handleDelete = (name,id) => {
+    console.log(name,id)
   if(window.confirm(`Delete ${name}`)){
     axios
       .delete(`${url}/${id}`)
       .then(response => {
-        console.log(response.data)
-        const updatedPersons = persons.filter(person => person.name != response.data.name)
-        setPersons(updatedPersons)
+         setPersons(persons.filter(person => person.id !== id))
       })
   }
   }
