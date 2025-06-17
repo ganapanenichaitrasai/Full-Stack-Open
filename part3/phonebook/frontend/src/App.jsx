@@ -7,7 +7,7 @@ import Notification from './components/Notification'
 import './index.css'
 import axios from 'axios'
 
-const url = "http://localhost:3001/api/persons"
+const url = "/api/persons"
 
 const App = () => {
   const [persons, setPersons] = useState([])
