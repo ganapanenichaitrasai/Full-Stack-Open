@@ -41,10 +41,11 @@ const App = () => {
     persons.forEach(person => {
       if (person.name === newName) {
         // console.log("match")
+        console.log(person.id)
         if(window.confirm(`${newName} is already added to phonebook,replace the old number with new one?`)){
           const changedPerson = {...person,number:newNumber}
           axios
-            .put(`${url}${person.id}`,changedPerson)
+            .put(`${url}/${person.id}`,changedPerson)
             .then(response => {
               setPersons(persons.map(person => person.name === newName? changedPerson : person))
             })

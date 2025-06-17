@@ -81,6 +81,22 @@ app.post('/api/persons',(req,res) => {
   
 })
 
+app.put('/api/persons/:id', (req, res, next) => {
+  const { name, number } = req.body;
+  Data.findById(req.params.id)
+    .then(note => {
+      if (!note) {
+        return res.status(404).end()
+      }
+      note.name = name;
+      note.number = number;
+      return note.save().then(updatedNote => {
+        res.json(updatedNote)
+      })
+    })
+    .catch(error => next(error))
+});
+
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
