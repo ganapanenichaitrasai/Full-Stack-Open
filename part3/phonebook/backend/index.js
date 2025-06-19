@@ -1,9 +1,9 @@
-const express = require("express")
-require("dotenv").config()
-const cors = require("cors")
+const express = require('express')
+require('dotenv').config()
+const cors = require('cors')
 const app = express()
-const morgan = require("morgan")
-const Data = require("./models/persons.js")
+const morgan = require('morgan')
+const Data = require('./models/persons.js')
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
@@ -37,7 +37,7 @@ app.get('/info',(req,res) => {
   res.send(
     `<p>Phonebook has info for ${Data.length + 1} people</p>
       <p>${new Date()}</p>`)
-  
+
 })
 
 app.get('/api/persons/:id',(req,res) => {
@@ -65,50 +65,50 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons',(req,res,next) => {
   const { name, number } = req.body
-  var flag;
+  var flag
   if(!name || !number){
     res.status(400).json({
       error: 'name or number missing',
     })
   }
   else{
-    Data.find({name}).then(person => {
+    Data.find({ name }).then(person => {
       flag = person.name
     })
     if (!flag){
-      
+
       const person = new Data({
-      "name" : name,
-      "number" : number
-    })
-    person.save().then(result => {
-      res.json(result)
-    })
-    .catch(error => next(error))
+        'name' : name,
+        'number' : number
+      })
+      person.save().then(result => {
+        res.json(result)
+      })
+        .catch(error => next(error))
     }
 
     else {
-      res.status(400).json({error : "name must be unique"})
-   }
+      res.status(400).json({ error : 'name must be unique' })
+    }
   }
-  
+
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
-  const { name, number } = req.body;
+  const { name, number } = req.body
   Data.findById(req.params.id)
     .then(note => {
       if (!note) {
-        return res.status(404).end();
+        return res.status(404).end()
       }
-      note.name = name;
-      note.number = number;
+      note.name = name
+      note.number = number
       return note.save().then(updatedNote => {
-        res.json(updatedNote);
-      });
+        res.json(updatedNote)
+      })
     })
-    .catch(error => next(error));
-});
+    .catch(error => next(error))
+})
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
