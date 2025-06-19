@@ -39,7 +39,7 @@ app.get('/api/notes/:id', (request, response) => {
 //   return String(maxId + 1)
 // }
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
   const {content,important} = request.body
 
   if (!content) {
@@ -56,6 +56,7 @@ app.post('/api/notes', (request, response) => {
   note.save().then(result => {
     response.json(result)
   })
+  .catch(error => next(error))
 })
 
 app.delete('/api/notes/:id', (request, response, next) => {

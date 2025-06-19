@@ -7,7 +7,7 @@ import Notification from './components/Notification'
 import './index.css'
 import axios from 'axios'
 
-const url = "/api/persons"
+const url = "http://localhost:3001/api/persons"
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -16,6 +16,7 @@ const App = () => {
   const [search,setSearch] = useState('')
   const [purify,setFilter] = useState(false)
   const [notification,setNotification] = useState(null)
+  const [styles,setStyles] = useState({})
 
   useEffect(() => {
     axios
@@ -65,11 +66,21 @@ const App = () => {
       .then(response => {
         setPersons(persons.concat(response.data))
         setNotification(`Added ${newName}`)
+        setStyles({color: 'green'})
         setTimeout(() => {
           setNotification(null)
         }, 5000)
         setNewName('')
         setNewNumber('')
+      })
+      .catch(error => {
+        setNotification(`${error.response.data.error}`)
+        setStyles({color :'red'})
+        setTimeout(() => {
+          setNotification(null)
+          setStyles({})
+        }, 5000)
+        console.log(error.response.data.error)
       })
   }
   }
@@ -86,6 +97,12 @@ const App = () => {
       .delete(`${url}/${id}`)
       .then(response => {
          setPersons(persons.filter(person => person.id !== id))
+         setNotification(`Deleted ${name}`)
+         setStyles({color : 'green'})
+         setTimeout(() => {
+          setNotification(null)
+          setStyles({})
+        }, 5000)
       })
   }
   }
@@ -93,7 +110,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message = {notification} />
+      <Notification styles = {styles} message = {notification} />
       <Filter text = "filter shown with" value = {search} onChange = {handleSearch} />
       <h3>add a new</h3>
       <PersonForm onSubmit = {handleSubmit} value1 = {newName} value2 = {newNumber} onChangeName = {handleNameChange} onChangeNumber = {handleNumberChange} />

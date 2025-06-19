@@ -1,10 +1,10 @@
-const Notification = ({ message }) => {
+const Notification = ({ styles,message }) => {
   if (message === null) {
     return null
   }
 
   return (
-    <div className='error'>
+    <div style={styles} className='error'>
       {message}
     </div>
   )
